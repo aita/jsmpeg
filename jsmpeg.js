@@ -5,6 +5,7 @@ var inherits = require('util').inherits;
 var VideoLoader = require('./VideoLoader.js');
 var BitReader = require('./BitReader.js');
 var Decoder = require('./Decoder.js');
+var ScrollWatcher = require('./ScrollWatcher.js');
 
 var requestAnimationFrame = (function() {
   return window.requestAnimationFrame ||
@@ -33,6 +34,7 @@ var jsmpeg = module.exports = function(url, options) {
 
   this.videoLoader = new VideoLoader();
   this.autoplay = !!options.autoplay;
+  this.autoplayOnScroll = !!options.autoplayOnScroll;
   this.preload = options.preload || 'auto';
   this.loop = !!options.loop;
 
@@ -46,9 +48,20 @@ var jsmpeg = module.exports = function(url, options) {
       this.doPreload(options.preloadTimeout);
     }
   }
+
+  if (this.autoplayOnScroll) {
+    ScrollWatcher.add(this);
+    this.on('show', (function() {
+      this.play();
+    }).bind(this));
+    this.on('unshow', (function() {
+      this.pause();
+    }).bind(this));
+  }
 };
 
 inherits(jsmpeg, EventEmitter2);
+module.exports.ScrollWatcher = ScrollWatcher;
 
 
 jsmpeg.prototype.doPreload = function(timeout) {
@@ -183,7 +196,7 @@ jsmpeg.prototype.animate = function() {
   requestAnimationFrame(this.animate.bind(this));
 };
 
-},{"./BitReader.js":7,"./Decoder.js":9,"./VideoLoader.js":10,"eventemitter2":6,"util":5}],2:[function(require,module,exports){
+},{"./BitReader.js":7,"./Decoder.js":9,"./ScrollWatcher.js":10,"./VideoLoader.js":11,"eventemitter2":6,"util":5}],2:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -1607,7 +1620,7 @@ CanvasRenderer.prototype.YCbCrToRGBA = function(Y, Cb, Cr) {
   }
 };
 
-},{"./utils.js":12}],9:[function(require,module,exports){
+},{"./utils.js":13}],9:[function(require,module,exports){
 var BitReader = require('./BitReader.js');
 var WebGLRenderer = require('./WebGLRenderer.js');
 var CanvasRenderer = require('./CanvasRenderer.js');
@@ -3169,7 +3182,53 @@ var MACROBLOCK_TYPE_TABLES = [
   MACROBLOCK_TYPE_B
 ];
 
-},{"./BitReader.js":7,"./CanvasRenderer.js":8,"./WebGLRenderer.js":11,"./utils.js":12}],10:[function(require,module,exports){
+},{"./BitReader.js":7,"./CanvasRenderer.js":8,"./WebGLRenderer.js":12,"./utils.js":13}],10:[function(require,module,exports){
+var ScrollWatcher = function() {
+  this.interval = 500;
+  this.watching = false;
+  this.players = [];
+
+  this.intervalID = null;
+};
+
+ScrollWatcher.prototype.add = function(player) {
+  if (this.players.length < 1) {
+    this.watching = true;
+    this.intervalID = setInterval(this.watch.bind(this), this.interval);
+  }
+  this.players.push(player);
+};
+
+ScrollWatcher.prototype.remove = function(player) {
+  this.players.remove(player);
+  if (this.players.length < 1) {
+    this.watching = false;
+    cancelInterval(this.intervalID);
+    this.intervalID = null;
+  }
+};
+
+ScrollWatcher.prototype.watch = function() {
+  for (var i = 0; i < this.players.length; i++) {
+    var player = this.players[i];
+    var bottom = player.el.getBoundingClientRect().bottom;
+    if (bottom <= window.innerHeight) {
+      if (!player.__shown) {
+        player.emit('show');
+        player.__shown = true;
+      }
+    } else {
+      if (player.__shown) {
+        player.emit('unshow');
+        player.__shown = false;
+      }
+    }
+  }
+};
+
+module.exports = new ScrollWatcher();
+
+},{}],11:[function(require,module,exports){
 var EventEmitter2 = require('eventemitter2').EventEmitter2;
 var inherits = require('util').inherits;
 
@@ -3264,7 +3323,7 @@ VideoLoader.prototype.load = function(timeout) {
   }
 };
 
-},{"eventemitter2":6,"util":5}],11:[function(require,module,exports){
+},{"eventemitter2":6,"util":5}],12:[function(require,module,exports){
 var WebGLRenderer = module.exports = function(decoder, canvas) {
   this.decoder = decoder;
   this.canvas = canvas;
@@ -3402,7 +3461,7 @@ var SHADER_VERTEX_IDENTITY = [
   '}'
 ].join('\n');
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var copyBlockToDestination = function(blockData, destArray, destIndex, scan) {
   for (var n = 0; n < 64; n += 8, destIndex += scan + 8) {
     destArray[destIndex + 0] = blockData[n + 0];

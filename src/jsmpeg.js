@@ -4,6 +4,7 @@ var inherits = require('util').inherits;
 var VideoLoader = require('./VideoLoader.js');
 var BitReader = require('./BitReader.js');
 var Decoder = require('./Decoder.js');
+var ScrollWatcher = require('./ScrollWatcher.js');
 
 var requestAnimationFrame = (function() {
   return window.requestAnimationFrame ||
@@ -32,6 +33,7 @@ var jsmpeg = module.exports = function(url, options) {
 
   this.videoLoader = new VideoLoader();
   this.autoplay = !!options.autoplay;
+  this.autoplayOnScroll = !!options.autoplayOnScroll;
   this.preload = options.preload || 'auto';
   this.loop = !!options.loop;
 
@@ -45,9 +47,20 @@ var jsmpeg = module.exports = function(url, options) {
       this.doPreload(options.preloadTimeout);
     }
   }
+
+  if (this.autoplayOnScroll) {
+    ScrollWatcher.add(this);
+    this.on('show', (function() {
+      this.play();
+    }).bind(this));
+    this.on('unshow', (function() {
+      this.pause();
+    }).bind(this));
+  }
 };
 
 inherits(jsmpeg, EventEmitter2);
+module.exports.ScrollWatcher = ScrollWatcher;
 
 
 jsmpeg.prototype.doPreload = function(timeout) {
