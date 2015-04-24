@@ -36,10 +36,10 @@ var jsmpeg = module.exports = function(url, options) {
   this.autoplay = !!options.autoplay;
   this.autoplayOnScroll = !!options.autoplayOnScroll;
   this.preload = options.preload || 'auto';
-  this.loop = !!options.loop;
+  this.repeat = !!options.repeat;
 
   this.decoder = new Decoder(this.canvas);
-  this.time = 0;
+  this.currentTime = 0;
 
   if (this.autoplay) {
     this.load();
@@ -150,7 +150,7 @@ jsmpeg.prototype.processFrame = function() {
   } else {
     var video = this.videoLoader.findByIndex(this.videoIndex+1);
     if (!video) {
-      if (this.loop) {
+      if (this.repeat) {
         video = this.videoLoader.findByIndex(0);
         this.loadVideo(video);
       } else {
@@ -190,7 +190,8 @@ jsmpeg.prototype.animate = function() {
   if (delta > interval) {
     this.processFrame();
     this.lastTime = now - (delta % interval);
-    this.time += interval;
+    this.currentTime += interval;
+    this.emit('timeupdate');
   }
 
   requestAnimationFrame(this.animate.bind(this));
@@ -1621,6 +1622,7 @@ CanvasRenderer.prototype.YCbCrToRGBA = function(Y, Cb, Cr) {
 };
 
 },{"./utils.js":13}],9:[function(require,module,exports){
+
 var BitReader = require('./BitReader.js');
 var WebGLRenderer = require('./WebGLRenderer.js');
 var CanvasRenderer = require('./CanvasRenderer.js');
@@ -3211,8 +3213,8 @@ ScrollWatcher.prototype.remove = function(player) {
 ScrollWatcher.prototype.watch = function() {
   for (var i = 0; i < this.players.length; i++) {
     var player = this.players[i];
-    var bottom = player.el.getBoundingClientRect().bottom;
-    if (bottom <= window.innerHeight) {
+    var rect = player.el.getBoundingClientRect();
+    if (0 <= rect.top && rect.bottom <= window.innerHeight) {
       if (!player.__shown) {
         player.emit('show');
         player.__shown = true;

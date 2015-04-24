@@ -26,8 +26,8 @@ ScrollWatcher.prototype.remove = function(player) {
 ScrollWatcher.prototype.watch = function() {
   for (var i = 0; i < this.players.length; i++) {
     var player = this.players[i];
-    var bottom = player.el.getBoundingClientRect().bottom;
-    if (bottom <= window.innerHeight) {
+    var rect = player.el.getBoundingClientRect();
+    if (0 <= rect.top && rect.bottom <= window.innerHeight) {
       if (!player.__shown) {
         player.emit('show');
         player.__shown = true;

@@ -35,10 +35,10 @@ var jsmpeg = module.exports = function(url, options) {
   this.autoplay = !!options.autoplay;
   this.autoplayOnScroll = !!options.autoplayOnScroll;
   this.preload = options.preload || 'auto';
-  this.loop = !!options.loop;
+  this.repeat = !!options.repeat;
 
   this.decoder = new Decoder(this.canvas);
-  this.time = 0;
+  this.currentTime = 0;
 
   if (this.autoplay) {
     this.load();
@@ -149,7 +149,7 @@ jsmpeg.prototype.processFrame = function() {
   } else {
     var video = this.videoLoader.findByIndex(this.videoIndex+1);
     if (!video) {
-      if (this.loop) {
+      if (this.repeat) {
         video = this.videoLoader.findByIndex(0);
         this.loadVideo(video);
       } else {
@@ -189,7 +189,8 @@ jsmpeg.prototype.animate = function() {
   if (delta > interval) {
     this.processFrame();
     this.lastTime = now - (delta % interval);
-    this.time += interval;
+    this.currentTime += interval;
+    this.emit('timeupdate');
   }
 
   requestAnimationFrame(this.animate.bind(this));
