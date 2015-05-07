@@ -40,10 +40,7 @@ Player.prototype.getVideoURL = function() {
 };
 
 Player.prototype.render = function() {
-  // TODO: 描画の排他処理の追加
   this.el.style.position = 'relative';
-  // this.el.style.width = WIDTH + 'px';
-  // this.el.style.height = HEIGHT + 'px';
   this.el.style.margin = 0;
 
   // 子要素の初期化
@@ -74,6 +71,8 @@ Player.prototype.addPlayer = function() {
   });
   this.player.canvas.style.zIndex = 10;
   this.player.canvas.style.position = 'relative';
+  this.player.canvas.width = this.getWidth();
+  this.player.canvas.height = this.getHeight();
   this.el.appendChild(this.player.el);
 };
 

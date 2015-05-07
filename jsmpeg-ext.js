@@ -1,6 +1,20 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var Player = require('./Player.js');
 
+function clone(obj) {
+  if(obj === null || typeof(obj) !== 'object') {
+    return obj;
+  }
+
+  var temp = {};
+  for(var key in obj) {
+      if(Object.prototype.hasOwnProperty.call(obj, key)) {
+          temp[key] = clone(obj[key]);
+      }
+  }
+  return temp;
+}
+
 function openPlayer(el, options) {
   var player = new Player(options);
   el.appendChild(player.el);
@@ -10,13 +24,7 @@ function openPlayer(el, options) {
 var current = document.scripts[document.scripts.length-1];
 if (current.previousElementSibling) {
   var el = current.previousElementSibling;
-  openPlayer(el, {
-    src: el.dataset.src,
-    mp4: el.dataset.mp4,
-    endcard: el.dataset.endcard,
-    width: el.dataset.width,
-    height: el.dataset.height
-  });
+  openPlayer(el, clone(el.dataset));
 }
 
 },{"./Player.js":2}],2:[function(require,module,exports){
@@ -62,10 +70,7 @@ Player.prototype.getVideoURL = function() {
 };
 
 Player.prototype.render = function() {
-  // TODO: 描画の排他処理の追加
   this.el.style.position = 'relative';
-  // this.el.style.width = WIDTH + 'px';
-  // this.el.style.height = HEIGHT + 'px';
   this.el.style.margin = 0;
 
   // 子要素の初期化
@@ -96,6 +101,8 @@ Player.prototype.addPlayer = function() {
   });
   this.player.canvas.style.zIndex = 10;
   this.player.canvas.style.position = 'relative';
+  this.player.canvas.width = this.getWidth();
+  this.player.canvas.height = this.getHeight();
   this.el.appendChild(this.player.el);
 };
 
@@ -3288,15 +3295,6 @@ ScrollWatcher.prototype.add = function(player) {
 
   if (!this.intervalID) {
     this.intervalID = setInterval(this.watch.bind(this), this.interval);
-  }
-};
-
-ScrollWatcher.prototype.remove = function(player) {
-  this.players.remove(player);
-
-  if (this.players.length < 1) {
-    cancelInterval(this.intervalID);
-    this.intervalID = null;
   }
 };
 

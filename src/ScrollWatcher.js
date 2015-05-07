@@ -14,15 +14,6 @@ ScrollWatcher.prototype.add = function(player) {
   }
 };
 
-ScrollWatcher.prototype.remove = function(player) {
-  this.players.remove(player);
-
-  if (this.players.length < 1) {
-    cancelInterval(this.intervalID);
-    this.intervalID = null;
-  }
-};
-
 ScrollWatcher.prototype.testBoundingRect = function(player) {
   var rect = player.el.getBoundingClientRect();
   if (0 <= rect.top && rect.bottom <= window.innerHeight) {

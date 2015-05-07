@@ -1,5 +1,19 @@
 var Player = require('./Player.js');
 
+function clone(obj) {
+  if(obj === null || typeof(obj) !== 'object') {
+    return obj;
+  }
+
+  var temp = {};
+  for(var key in obj) {
+      if(Object.prototype.hasOwnProperty.call(obj, key)) {
+          temp[key] = clone(obj[key]);
+      }
+  }
+  return temp;
+}
+
 function openPlayer(el, options) {
   var player = new Player(options);
   el.appendChild(player.el);
@@ -9,11 +23,5 @@ function openPlayer(el, options) {
 var current = document.scripts[document.scripts.length-1];
 if (current.previousElementSibling) {
   var el = current.previousElementSibling;
-  openPlayer(el, {
-    src: el.dataset.src,
-    mp4: el.dataset.mp4,
-    endcard: el.dataset.endcard,
-    width: el.dataset.width,
-    height: el.dataset.height
-  });
+  openPlayer(el, clone(el.dataset));
 }
