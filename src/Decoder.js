@@ -1,4 +1,3 @@
-
 var BitReader = require('./BitReader.js');
 var WebGLRenderer = require('./WebGLRenderer.js');
 var CanvasRenderer = require('./CanvasRenderer.js');

@@ -40,22 +40,17 @@ var jsmpeg = module.exports = function(url, options) {
   this.decoder = new Decoder(this.canvas);
   this.currentTime = 0;
 
-  if (this.autoplay) {
-    this.load();
-  } else {
-    if (this.preload != 'none') {
-      this.doPreload(options.preloadTimeout);
-    }
+  this.on('show', this.play.bind(this));
+  this.on('unshow', this.pause.bind(this));
+
+  if (this.preload != 'none') {
+    this.doPreload(options.preloadTimeout);
   }
 
-  if (this.autoplayOnScroll) {
-    ScrollWatcher.add(this);
-    this.on('show', (function() {
-      this.play();
-    }).bind(this));
-    this.on('unshow', (function() {
-      this.pause();
-    }).bind(this));
+  if (this.autoplay == 'scroll') {
+      ScrollWatcher.add(this);
+  } else if (this.autoplay) {
+    this.load();
   }
 };
 
@@ -96,7 +91,6 @@ jsmpeg.prototype.doPreload = function(timeout) {
   this.videoLoader.load(timeout);
 };
 
-
 jsmpeg.prototype.load = function() {
   if (!this.playing) {
     this.videoLoader.once('load', (function(video) {
@@ -106,7 +100,6 @@ jsmpeg.prototype.load = function() {
   this.videoLoader.add(this.url);
   this.videoLoader.load();
 };
-
 
 jsmpeg.prototype.loadVideo = function(video) {
   this.videoIndex = video.index;
@@ -125,16 +118,24 @@ jsmpeg.prototype.play = function() {
     return;
   }
 
+  this.emit('play');
   this.playing = true;
   this.load();
   this.animate();
 };
 
 jsmpeg.prototype.pause = function() {
+  if (!this.playing) {
+    return;
+  }
+
+  this.emit('pause');
   this.playing = false;
 };
 
 jsmpeg.prototype.stop = function() {
+  this.emit('stop');
+
   this.loadVideo(this.videoLoader.findByIndex(0));
   this.playing = false;
 };
@@ -149,11 +150,12 @@ jsmpeg.prototype.processFrame = function() {
   } else {
     var video = this.videoLoader.findByIndex(this.videoIndex+1);
     if (!video) {
+      this.emit('ended');
       if (this.repeat) {
         video = this.videoLoader.findByIndex(0);
         this.loadVideo(video);
       } else {
-        this.pause();
+        this.stop();
       }
     } else {
       if (video.status === 'loaded') {
