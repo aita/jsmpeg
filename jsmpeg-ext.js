@@ -1,205 +1,311 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.jsmpeg = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var EventEmitter2 = require('eventemitter2').EventEmitter2;
-var inherits = require('inherits');
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var Player = require('./Player.js');
 
-var VideoLoader = require('./VideoLoader.js');
-var BitReader = require('./BitReader.js');
-var Decoder = require('./Decoder.js');
-var ScrollWatcher = require('./ScrollWatcher.js');
+function clone(obj) {
+  if(obj === null || typeof(obj) !== 'object') {
+    return obj;
+  }
 
-var requestAnimationFrame = (function() {
-  return window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame || function(callback) {
-      window.setTimeout(callback, 1000 / 60);
-    };
-})();
-
-var getTime = function() {
-  if (window.performance) {
-    if (window.performance.now) {
-      return window.performance.now();
+  var temp = {};
+  for(var key in obj) {
+    if(Object.prototype.hasOwnProperty.call(obj, key)) {
+      temp[key] = clone(obj[key]);
     }
   }
-  return Date.now();
+  return temp;
+}
+
+function openPlayer(el, options) {
+  var player = new Player(options);
+  el.appendChild(player.el);
+  player.open();
+}
+
+var current = document.scripts[document.scripts.length-1];
+if (current.previousElementSibling) {
+  var el = current.previousElementSibling;
+  openPlayer(el, clone(el.dataset));
+}
+
+},{"./Player.js":2}],2:[function(require,module,exports){
+var jsmpeg = require('../src/jsmpeg.js');
+
+var Player = module.exports = function(options) {
+  this.el = document.createElement('div');
+  this.options = options || {};
+  if (typeof this.options.autoplay === 'undefined') {
+    this.options.autoplay = 'scroll';
+  }
+  if (typeof this.options.preload === 'undefined') {
+    this.preload = 1;
+  }
+  this.videoInfo = null;
+
+  // 子要素のDOM
+  this.player = null;
+  this.video = null;
+  this.endcard = null;
+  this.ctrl = null;
+  this.replayButton = null;
 };
 
-var jsmpeg = module.exports = function(url, options) {
-  options = options || {};
+Player.prototype.open = function() {
+  var request = new XMLHttpRequest();
+  request.onreadystatechange = (function() {
+    if (request.readyState == request.DONE && request.status == 200) {
+      this.videoInfo = JSON.parse(request.response);
+      this.render();
+    }
+  }).bind(this);
 
-  this.url = url;
-  this.videoIndex = 0;
-  this.el = this.canvas = options.canvas || document.createElement('canvas');
-  this.ctx = this.canvas.getContext('2d');
-
-  this.videoLoader = new VideoLoader();
-  this.autoplay = !!options.autoplay;
-  this.autoplayOnScroll = !!options.autoplayOnScroll;
-  this.preload = options.preload || 'auto';
-  this.repeat = !!options.repeat;
-
-  this.decoder = new Decoder(this.canvas);
-  this.currentTime = 0;
-
-  this.on('show', this.play.bind(this));
-  this.on('unshow', this.pause.bind(this));
-
-  if (this.preload != 'none') {
-    this.doPreload(options.preloadTimeout);
-  }
-
-  if (this.autoplay == 'scroll') {
-      ScrollWatcher.add(this);
-  } else if (this.autoplay) {
-    this.load();
-  }
+  request.open('GET', this.options.src);
+  request.send();
 };
 
-inherits(jsmpeg, EventEmitter2);
-module.exports.ScrollWatcher = ScrollWatcher;
-
-
-jsmpeg.prototype.doPreload = function(timeout) {
-  if (this.preload === 'meta') {
-    // ignore
-    return;
-  }
-
-  if (this.preload === 'auto') {
-    // load all videos
-    this.videoLoader.add(this.url);
-  }
-
-  if (typeof this.preload === 'number') {
-    if (this.preload > 0 && Array.isArray(this.url)) {
-      var urls = this.url.slice(0, this.preload);
-      this.videoLoader.add(urls);
+Player.prototype.getVideoURL = function() {
+  return this.videoInfo.url.map((function(url){
+    if (/^(https?:)?\/\//.test(url)) {
+        return url;
     } else {
-      // load all videos
-      this.videoLoader.add(this.url);
+      var baseURL = this.options.src.split('/').slice(0, -1).join('/');
+      return baseURL !== '' ? baseURL + '/' + url : url;
     }
-  }
+  }).bind(this));
+};
 
-  this.videoLoader.once('load', (function(video) {
-    this.emit('preload');
-    this.loadVideo(video);
-  }.bind(this)));
-  if (typeof timeout !== 'undefined') {
-    this.videoLoader.once('timeout', (function() {
-      this.emit('preloadTimeout');
+Player.prototype.render = function() {
+  this.el.style.position = 'relative';
+  this.el.style.margin = 0;
+
+  // 子要素の初期化
+  this.addPlayer();
+  if (this.options.mp4) {
+    this.addVideo();  // FullScreen用のvideoタグ
+  }
+  // 要素のサイズの設定
+  this.el.style.width = this.getWidth() + 'px';
+  this.el.style.height = this.getHeight() + 'px';
+
+  // イベントの初期化
+  this.initEvents();
+
+  // 未表示なら表示する
+  if (this.el.style.display === 'none') {
+    this.el.style.display = '';
+  }
+};
+
+Player.prototype.addPlayer = function() {
+  // jsmpegの初期化
+  this.player = new jsmpeg(this.getVideoURL(), {
+    repeat: false,
+    autoplay: this.options.autoplay,
+    preload: this.options.preload,
+    preloadTimeout: this.options.preloadTimeout
+  });
+  this.player.canvas.style.zIndex = 10;
+  this.player.canvas.style.position = 'relative';
+  this.player.canvas.width = this.getWidth();
+  this.player.canvas.height = this.getHeight();
+  this.el.appendChild(this.player.el);
+};
+
+Player.prototype.addVideo = function() {
+  this.video = document.createElement('video');
+  this.video.src = this.options.mp4;
+  this.video.preload = 'none';
+  // スタイルの設定
+  this.video.style.zIndex = 1;
+  this.video.style.opacity = 0;
+  // jsmpegのcanvasと重ねて表示する
+  this.video.style.position = 'fixed';
+  this.video.width = this.getWidth();
+  this.video.height = this.getHeight();
+  this.video.style.top = 0;
+  this.video.style.left = 0;
+  this.el.appendChild(this.video);
+};
+
+Player.prototype.initEvents = function() {
+  // jsmpegのイベントの初期化
+  this.player.el.addEventListener('click', this.onClick.bind(this));
+  this.player.on('ended', this.showEndcard.bind(this));
+  this.player.on('preloadTimeout', this.onTimeout.bind(this));
+
+  // フルスクリーン用の動画が設定されている場合は、クリック時にフルスクリーン再生にする。
+  if (this.options.mp4) {
+    // videoタグのイベントの初期化
+    // 再生開始時
+    this.video.addEventListener('play', (function() {
+      this.player.pause();
     }).bind(this));
-  }
-  this.videoLoader.load(timeout);
-};
+    // 再生停止時
+    this.video.addEventListener('pause', (function() {
+      this.player.play();
+    }).bind(this));
+    // 再生終了時
+    this.video.addEventListener('ended', (function() {
+      this.cancelFullScreen();
+      this.showEndcard();
+    }).bind(this));
 
-jsmpeg.prototype.load = function() {
-  if (!this.playing) {
-    this.videoLoader.once('load', (function(video) {
-      this.loadVideo(video);
-    }.bind(this)));
-  }
-  this.videoLoader.add(this.url);
-  this.videoLoader.load();
-};
-
-jsmpeg.prototype.loadVideo = function(video) {
-  this.videoIndex = video.index;
-  this.decoder.loadBuffer(video.data);
-
-  // Load the first frame
-  this.processFrame();
-
-  if (this.autoplay) {
-    this.play();
-  }
-};
-
-jsmpeg.prototype.play = function() {
-  if (this.playing) {
-    return;
-  }
-
-  this.emit('play');
-  this.playing = true;
-  this.load();
-  this.animate();
-};
-
-jsmpeg.prototype.pause = function() {
-  if (!this.playing) {
-    return;
-  }
-
-  this.emit('pause');
-  this.playing = false;
-};
-
-jsmpeg.prototype.stop = function() {
-  this.emit('stop');
-
-  this.loadVideo(this.videoLoader.findByIndex(0));
-  this.playing = false;
-};
-
-jsmpeg.prototype.processFrame = function() {
-  if (this.decoder.nextFrame()) {
-    this.ctx.drawImage(
-      this.decoder.canvas,
-      0, 0, this.decoder.width, this.decoder.height,
-      0, 0, this.canvas.width, this.canvas.height
-    );
-  } else {
-    var video = this.videoLoader.findByIndex(this.videoIndex+1);
-    if (!video) {
-      this.emit('ended');
-      if (this.repeat) {
-        video = this.videoLoader.findByIndex(0);
-        this.loadVideo(video);
-      } else {
-        this.stop();
-      }
-    } else {
-      if (video.status === 'loaded') {
-        this.loadVideo(video);
-      } else {
-        this.pause();
-        this.videoLoader.once('load', (function(video) {
-          if (video) {
-            this.loadVideo(video);
-            this.play();
-          }
-        }.bind(this)));
-        if (video.status != 'loading') {
-          this.load();
-        }
-      }
+    // Fullscreenから戻った時のコールバックを設定
+    var prefix = ['webkit', 'moz', 'ms', ''];
+    for (var i = 0; i < prefix.length; i++) {
+      var ev = prefix[i] + 'fullscreenchange';
+      document.addEventListener(ev, this.onFullScreenChange.bind(this), false);
     }
   }
 };
 
-jsmpeg.prototype.animate = function() {
-  if (!this.playing) {
-    return;
-  }
-
-  var now = getTime();
-  if (!this.lastTime) {
-    this.lastTime = now;
-  }
-  var interval = 1000 / this.decoder.pictureRate;
-  var delta = now - this.lastTime;
-
-  if (delta > interval) {
-    this.processFrame();
-    this.lastTime = now - (delta % interval);
-    this.currentTime += interval;
-    this.emit('timeupdate');
-  }
-
-  requestAnimationFrame(this.animate.bind(this));
+Player.prototype.onTimeout = function() {
+  this.showEndcard();
 };
 
-},{"./BitReader.js":4,"./Decoder.js":6,"./ScrollWatcher.js":7,"./VideoLoader.js":8,"eventemitter2":2,"inherits":3}],2:[function(require,module,exports){
+Player.prototype.onClick = function(ev) {
+  if (this.player.playing) {
+      this.fullscreen();
+  } else {
+    this.player.play();
+  }
+  return ev.preventDefault();
+};
+
+Player.prototype.requestFullScreen = function() {
+  if (this.video.requestFullScreen) {
+    this.video.requestFullScreen();
+  } else if (this.video.webkitRequestFullScreen) {
+    this.video.webkitRequestFullScreen();
+  } else if (this.video.webkitEnterFullscreen) {
+    this.video.webkitEnterFullscreen();
+  }
+};
+
+Player.prototype.cancelFullScreen = function() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+  } else if (document.webkitCancelFullScreen) {
+    document.webkitCancelFullScreen();
+  } else if (document.msExitFullscreen) {
+    document.msExitFullscreen();
+  }
+};
+
+Player.prototype.fullscreen = function() {
+  if (this.options.mp4) {
+    // jsmpegでの再生を停止
+    this.player.pause();
+    // videoタグの再生開始
+    this.requestFullScreen();
+    this.video.play();
+    return true;
+  }
+  return false;
+};
+
+Player.prototype.onFullScreenChange = function() {
+  var fullscreenElementAPI = [
+    'webkitFullscreenElement',
+    'mozFullscreenElement',
+    'msFullscreenElement',
+    'fullscreenElement'
+  ];
+  var isFullScreen = false;
+  for (var i = 0; i < fullscreenElementAPI.length; i++) {
+    var prop = fullscreenElementAPI[i];
+    if (document[prop] && document[prop] !== null) {
+      isFullScreen = true;
+      break;
+    }
+  }
+
+  if (isFullScreen) {
+    // フルスクリーンが有効になる場合
+    this.player.pause();
+  } else {
+    // フルスクリーンが無効になる場合
+    this.video.style.opacity = 0;
+    this.video.pause();
+    this.player.play();
+  }
+};
+
+Player.prototype.getWidth = function() {
+  return this.options.width || this.player.el.width;
+}
+
+Player.prototype.getHeight = function() {
+  return this.options.height || this.player.el.height;
+}
+
+Player.prototype.showEndcard = function() {
+  // 動画を非表示にする
+  this.player.el.style.display = 'none';
+  this.video.style.display = 'none';
+  // エンドカードの表示
+  this.addEndcard();
+
+  // イベントの初期化
+  // this.endcard.addEventListener('click', this.replay.bind(this));
+  this.replayButton.addEventListener('click', this.replay.bind(this));
+};
+
+Player.prototype.addEndcard = function() {
+  this.endcard = new Image;
+  this.endcard.src = this.options.endcard;
+  this.endcard.width = this.getWidth();
+  this.endcard.height = this.getHeight();
+  this.el.appendChild(this.endcard);
+
+  // コントロールバーの追加
+  this.addCtrl();
+};
+
+Player.prototype.removeEndcard = function() {
+  this.el.removeChild(this.endcard);
+  this.el.removeChild(this.ctrl);
+}
+
+Player.prototype.addCtrl = function() {
+  this.ctrl = document.createElement('div');
+  this.ctrl.style.zIndex = 100;
+  this.ctrl.style.position = 'absolute';
+  this.ctrl.style.width = '100%';
+  this.ctrl.style.height = '40px';
+  this.ctrl.style.bottom = 0;
+  this.ctrl.style.left = 0;
+  this.ctrl.style.opacity = 0.7;
+  this.ctrl.style.background = '#000';
+  this.el.appendChild(this.ctrl);
+
+  // リプレイボタンの追加
+  this.replayButton = document.createElement('button');
+  this.replayButton.innerHTML = 'Replay';
+  this.replayButton.style.height = '30px';
+  this.replayButton.style.padding = '5px';
+  this.replayButton.style.margin = '5px 8px';
+  this.ctrl.appendChild(this.replayButton);
+};
+
+Player.prototype.replay = function() {
+  // 動画を表示
+  this.player.el.style.display = '';
+  this.video.style.display = '';
+
+  // エンドカードの削除
+  this.removeEndcard();
+
+  if (typeof this.options.replayInline !== 'undefined') {
+    this.player.play();
+  } else {
+    this.video.currentTime = 0;
+    this.fullscreen();
+  }
+};
+
+},{"../src/jsmpeg.js":11}],3:[function(require,module,exports){
 /*!
  * EventEmitter2
  * https://github.com/hij1nx/EventEmitter2
@@ -774,7 +880,7 @@ jsmpeg.prototype.animate = function() {
   }
 }();
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -799,7 +905,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var BitReader = module.exports = function(arrayBuffer) {
   this.bytes = new Uint8Array(arrayBuffer);
   this.length = this.bytes.length;
@@ -877,7 +983,7 @@ BitReader.prototype.rewind = function(count) {
   return (this.index -= count);
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var utils = require('./utils.js');
 
 var CanvasRenderer = module.exports = function(decoder, canvas) {
@@ -966,7 +1072,7 @@ CanvasRenderer.prototype.YCbCrToRGBA = function(Y, Cb, Cr) {
   }
 };
 
-},{"./utils.js":10}],6:[function(require,module,exports){
+},{"./utils.js":12}],7:[function(require,module,exports){
 var BitReader = require('./BitReader.js');
 var WebGLRenderer = require('./WebGLRenderer.js');
 var CanvasRenderer = require('./CanvasRenderer.js');
@@ -2528,7 +2634,7 @@ var MACROBLOCK_TYPE_TABLES = [
   MACROBLOCK_TYPE_B
 ];
 
-},{"./BitReader.js":4,"./CanvasRenderer.js":5,"./WebGLRenderer.js":9,"./utils.js":10}],7:[function(require,module,exports){
+},{"./BitReader.js":5,"./CanvasRenderer.js":6,"./WebGLRenderer.js":10,"./utils.js":12}],8:[function(require,module,exports){
 var ScrollWatcher = function() {
   this.interval = 500;
   this.players = [];
@@ -2569,7 +2675,7 @@ ScrollWatcher.prototype.watch = function() {
 
 module.exports = new ScrollWatcher();
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var EventEmitter2 = require('eventemitter2').EventEmitter2;
 var inherits = require('inherits');
 
@@ -2664,7 +2770,7 @@ VideoLoader.prototype.load = function(timeout) {
   }
 };
 
-},{"eventemitter2":2,"inherits":3}],9:[function(require,module,exports){
+},{"eventemitter2":3,"inherits":4}],10:[function(require,module,exports){
 var WebGLRenderer = module.exports = function(decoder, canvas) {
   this.decoder = decoder;
   this.canvas = canvas;
@@ -2802,7 +2908,208 @@ var SHADER_VERTEX_IDENTITY = [
   '}'
 ].join('\n');
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
+var EventEmitter2 = require('eventemitter2').EventEmitter2;
+var inherits = require('inherits');
+
+var VideoLoader = require('./VideoLoader.js');
+var BitReader = require('./BitReader.js');
+var Decoder = require('./Decoder.js');
+var ScrollWatcher = require('./ScrollWatcher.js');
+
+var requestAnimationFrame = (function() {
+  return window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame || function(callback) {
+      window.setTimeout(callback, 1000 / 60);
+    };
+})();
+
+var getTime = function() {
+  if (window.performance) {
+    if (window.performance.now) {
+      return window.performance.now();
+    }
+  }
+  return Date.now();
+};
+
+var jsmpeg = module.exports = function(url, options) {
+  options = options || {};
+
+  this.url = url;
+  this.videoIndex = 0;
+  this.el = this.canvas = options.canvas || document.createElement('canvas');
+  this.ctx = this.canvas.getContext('2d');
+
+  this.videoLoader = new VideoLoader();
+  this.autoplay = !!options.autoplay;
+  this.autoplayOnScroll = !!options.autoplayOnScroll;
+  this.preload = options.preload || 'auto';
+  this.repeat = !!options.repeat;
+
+  this.decoder = new Decoder(this.canvas);
+  this.currentTime = 0;
+
+  this.on('show', this.play.bind(this));
+  this.on('unshow', this.pause.bind(this));
+
+  if (this.preload != 'none') {
+    this.doPreload(options.preloadTimeout);
+  }
+
+  if (this.autoplay == 'scroll') {
+      ScrollWatcher.add(this);
+  } else if (this.autoplay) {
+    this.load();
+  }
+};
+
+inherits(jsmpeg, EventEmitter2);
+module.exports.ScrollWatcher = ScrollWatcher;
+
+
+jsmpeg.prototype.doPreload = function(timeout) {
+  if (this.preload === 'meta') {
+    // ignore
+    return;
+  }
+
+  if (this.preload === 'auto') {
+    // load all videos
+    this.videoLoader.add(this.url);
+  }
+
+  if (typeof this.preload === 'number') {
+    if (this.preload > 0 && Array.isArray(this.url)) {
+      var urls = this.url.slice(0, this.preload);
+      this.videoLoader.add(urls);
+    } else {
+      // load all videos
+      this.videoLoader.add(this.url);
+    }
+  }
+
+  this.videoLoader.once('load', (function(video) {
+    this.emit('preload');
+    this.loadVideo(video);
+  }.bind(this)));
+  if (typeof timeout !== 'undefined') {
+    this.videoLoader.once('timeout', (function() {
+      this.emit('preloadTimeout');
+    }).bind(this));
+  }
+  this.videoLoader.load(timeout);
+};
+
+jsmpeg.prototype.load = function() {
+  if (!this.playing) {
+    this.videoLoader.once('load', (function(video) {
+      this.loadVideo(video);
+    }.bind(this)));
+  }
+  this.videoLoader.add(this.url);
+  this.videoLoader.load();
+};
+
+jsmpeg.prototype.loadVideo = function(video) {
+  this.videoIndex = video.index;
+  this.decoder.loadBuffer(video.data);
+
+  // Load the first frame
+  this.processFrame();
+
+  if (this.autoplay) {
+    this.play();
+  }
+};
+
+jsmpeg.prototype.play = function() {
+  if (this.playing) {
+    return;
+  }
+
+  this.emit('play');
+  this.playing = true;
+  this.load();
+  this.animate();
+};
+
+jsmpeg.prototype.pause = function() {
+  if (!this.playing) {
+    return;
+  }
+
+  this.emit('pause');
+  this.playing = false;
+};
+
+jsmpeg.prototype.stop = function() {
+  this.emit('stop');
+
+  this.loadVideo(this.videoLoader.findByIndex(0));
+  this.playing = false;
+};
+
+jsmpeg.prototype.processFrame = function() {
+  if (this.decoder.nextFrame()) {
+    this.ctx.drawImage(
+      this.decoder.canvas,
+      0, 0, this.decoder.width, this.decoder.height,
+      0, 0, this.canvas.width, this.canvas.height
+    );
+  } else {
+    var video = this.videoLoader.findByIndex(this.videoIndex+1);
+    if (!video) {
+      this.emit('ended');
+      if (this.repeat) {
+        video = this.videoLoader.findByIndex(0);
+        this.loadVideo(video);
+      } else {
+        this.stop();
+      }
+    } else {
+      if (video.status === 'loaded') {
+        this.loadVideo(video);
+      } else {
+        this.pause();
+        this.videoLoader.once('load', (function(video) {
+          if (video) {
+            this.loadVideo(video);
+            this.play();
+          }
+        }.bind(this)));
+        if (video.status != 'loading') {
+          this.load();
+        }
+      }
+    }
+  }
+};
+
+jsmpeg.prototype.animate = function() {
+  if (!this.playing) {
+    return;
+  }
+
+  var now = getTime();
+  if (!this.lastTime) {
+    this.lastTime = now;
+  }
+  var interval = 1000 / this.decoder.pictureRate;
+  var delta = now - this.lastTime;
+
+  if (delta > interval) {
+    this.processFrame();
+    this.lastTime = now - (delta % interval);
+    this.currentTime += interval;
+    this.emit('timeupdate');
+  }
+
+  requestAnimationFrame(this.animate.bind(this));
+};
+
+},{"./BitReader.js":5,"./Decoder.js":7,"./ScrollWatcher.js":8,"./VideoLoader.js":9,"eventemitter2":3,"inherits":4}],12:[function(require,module,exports){
 var copyBlockToDestination = function(blockData, destArray, destIndex, scan) {
   for (var n = 0; n < 64; n += 8, destIndex += scan + 8) {
     destArray[destIndex + 0] = blockData[n + 0];
@@ -2898,5 +3205,4 @@ module.exports.fillArray = function(a, value) {
   }
 };
 
-},{}]},{},[1])(1)
-});
+},{}]},{},[1]);
