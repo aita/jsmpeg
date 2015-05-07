@@ -64,8 +64,12 @@ Player.prototype.open = function() {
 
 Player.prototype.getVideoURL = function() {
   return this.videoInfo.url.map((function(url){
-    var baseURL = this.options.src.split('/').slice(0, -1).join('/');
-    return baseURL !== '' ? baseURL + '/' + url : url;
+    if (/^(https?:)?\/\//.test(url)) {
+        return url;
+    } else {
+      var baseURL = this.options.src.split('/').slice(0, -1).join('/');
+      return baseURL !== '' ? baseURL + '/' + url : url;
+    }
   }).bind(this));
 };
 
@@ -196,7 +200,9 @@ Player.prototype.fullscreen = function() {
     // videoタグの再生開始
     this.requestFullScreen();
     this.video.play();
+    return true;
   }
+  return false;
 };
 
 Player.prototype.onFullScreenChange = function() {
@@ -291,8 +297,12 @@ Player.prototype.replay = function() {
   // エンドカードの削除
   this.removeEndcard();
 
-  // 動画のリプレイ
-  this.player.play();
+  if (typeof this.options.replayInline !== 'undefined') {
+    this.player.play();
+  } else {
+    this.video.currentTime = 0;
+    this.fullscreen();
+  }
 };
 
 },{"../src/jsmpeg.js":11}],3:[function(require,module,exports){
