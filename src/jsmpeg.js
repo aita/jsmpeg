@@ -1,5 +1,5 @@
 var EventEmitter2 = require('eventemitter2').EventEmitter2;
-var inherits = require('util').inherits;
+var inherits = require('inherits');
 
 var VideoLoader = require('./VideoLoader.js');
 var BitReader = require('./BitReader.js');

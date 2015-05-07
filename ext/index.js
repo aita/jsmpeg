@@ -7,9 +7,9 @@ function clone(obj) {
 
   var temp = {};
   for(var key in obj) {
-      if(Object.prototype.hasOwnProperty.call(obj, key)) {
-          temp[key] = clone(obj[key]);
-      }
+    if(Object.prototype.hasOwnProperty.call(obj, key)) {
+      temp[key] = clone(obj[key]);
+    }
   }
   return temp;
 }
