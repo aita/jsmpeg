@@ -1,7 +1,8 @@
 Mobile Inline Player
 =====================
 
-An Inline MPEG1 Video Player in JavaScript
+Mobile Inline Player is a MPEG1 player for mobile browsers. It supports pseudo video-streaming with multiple MPEG1 files and auto inline-playing on iPhone and Android.
+
 
 # Usage
 
