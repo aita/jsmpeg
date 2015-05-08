@@ -1,67 +1,41 @@
-jsmpeg
-==========
+jsmpeg-inline
+==================
 
-#### An MPEG1 Video Decoder in JavaScript ####
+An Inline MPEG1 Video Player in JavaScript
 
-jsmpeg is a MPEG1 Decoder, written in JavaScript. It's "hand ported", i.e. not compiled with
-emscripten or similar. This will probably make it obsolete with the advent of asmjs.
+# Usage
 
-Some demos and more info: [phoboslab.org/log/2013/05/mpeg1-video-decoder-in-javascript](http://www.phoboslab.org/log/2013/05/mpeg1-video-decoder-in-javascript)
+```html
+<div data-src="video.json" data-mp4="fullscreen.mp4" data-endcard="endcard.jpg"></div>
+<script src="jsmpeg-inline.js"></script>
+```
 
+# Options
 
-### Usage ###
-
-```javascript
-// Synopsis: var player = new jsmpeg(urlToFile, options);
-// The 'options' argument and all of its properties is optional. If no canvas element
-// is given, jsmpeg will create its own, to be accessed at .canvas
-
-// Example:
-var canvas = document.getElementById('videoCanvas');
-var player = new jsmpeg('file.mpeg', {canvas: canvas, autoplay: true, loop: true});
-
-player.pause();
-player.play();
-player.stop();
+| Key                    | Description
+|------------------------|------------------------------------
+| data-src               | a playlist URL
+| data-mp4               | a mp4 video URL for full screen
+| data-endcard           | an endcard image URL
+| data-width             | video width
+| data-height            | video height
+| data-preload-timeout   | a time limit for preloading (in micro seconds)
 
 
-// An 'onload' callback can be specified in the 'options' argument
-var mpegLoaded = function( player ) {
-	console.log('Loaded', player);
+# File format
 
-	// calculateFrameCount() and calculateDuration() can only be called
-	// after the mpeg has been fully loaded. So this callback is the ideal
-	// place to fetch this info
-	var frames = player.calculateFrameCount(),
-		duration = player.calculateDuration();
+### JSON
 
-	console.log('Duration: '+duration+' seconds ('+frames+' frames)');
-};
-
-var player = new jsmpeg('file.mpeg', {onload:mpegLoaded});
-
-// If you don't use 'autoplay' and don't explicitly call .play(), you can get individual
-// video frames (a canvas element) like so:
-var frame = null;
-while( (frame = player.nextFrame()) ) {
-	someOtherCanvasContext.drawImage(frame, 0, 0);
+```json
+{
+  "url": [
+    "aaa.mpg",
+    "bbb.mpg"
+  ]
 }
 ```
 
-### Pseudo Streaming ###
-
-jsmpeg supports streaming live video through WebSockets. You can use ffmpeg and a nodejs server to serve the MPEG video. See this [blog post](http://phoboslab.org/log/2013/09/html5-live-video-streaming-via-websockets) for the details of setting up a server. Also have a look at the `stream-server.js` and `stream-example.html`.
-
-To configure jsmpeg to connect to the stream server, simply pass a WebSocket connection instead of a filename to the constructor:
-
-```javascript
-// Setup the WebSocket connection and start the player
-var client = new WebSocket( 'ws://example.com:8084/' );
-var player = new jsmpeg(client, {canvas:canvas});
-```
-
-
-### Limitations ###
+# Limitations
 
 - Playback can only start when the file is fully loaded (when not streaming through WebSockets). I'm waiting for chunked XHR with ArrayBuffers to arrive in browsers.
 - MPEG files with B-Frames look weird - frames are not reordered. This should be relatively easy

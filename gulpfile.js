@@ -10,7 +10,7 @@ var pkg = require('./package.json');
 
 gulp.task('jsmpeg', function() {
   browserify({
-    entries: ['./src/jsmpeg.js'],
+    entries: ['./jsmpeg/jsmpeg.js'],
     standalone: 'jsmpeg'
   })
     .bundle()
@@ -20,17 +20,17 @@ gulp.task('jsmpeg', function() {
   ;
 });
 
-gulp.task('ext', function() {
+gulp.task('scripts', function() {
   browserify({
-    entries: ['./ext/index.js'],
+    entries: ['./src/index.js'],
   })
     .bundle()
-    .pipe(source('jsmpeg-ext.js'))
+    .pipe(source('jsmpeg-inline.js'))
     .pipe(header(BANNER + '\n\n', { pkg: pkg }))
     .pipe(gulp.dest('./'))
   ;
 });
 
 gulp.task('watch', function () {
-  gulp.watch(['./src/*.js', './ext/*.js'], ['jsmpeg', 'ext']);
+  gulp.watch(['./jsmpeg/*.js', './src/*.js'], ['jsmpeg', 'scripts']);
 });

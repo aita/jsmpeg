@@ -1,11 +1,11 @@
 {
-  "name": "jsmpeg",
+  "name": "jsmpeg-inline",
   "version": "1.0.0",
-  "description": "An MPEG1 Video Decoder in JavaScript",
-  "main": "src/jsmpeg.js",
+  "description": "An Inline MPEG1 Video Player in JavaScript",
+  "main": "src/index.js",
   "dependencies": {
     "eventemitter2": "^0.4.14",
-    "util": "^0.10.3"
+    "inherits": "^2.0.1"
   },
   "devDependencies": {
     "browserify": "^9.0.8",

@@ -1,4 +1,4 @@
-var jsmpeg = require('../src/jsmpeg.js');
+var jsmpeg = require('../jsmpeg/jsmpeg.js');
 
 var Player = module.exports = function(options) {
   this.el = document.createElement('div');
