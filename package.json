@@ -1,7 +1,7 @@
 {
-  "name": "jsmpeg-inline",
+  "name": "Mobile Inline Player",
   "version": "1.0.0",
-  "description": "An Inline MPEG1 Video Player in JavaScript",
+  "description": "An Inline MPEG1 Video Player for Mobile Browsers",
   "main": "jsmpeg/jsmpeg.js",
   "dependencies": {
     "eventemitter2": "^0.4.14",

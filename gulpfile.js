@@ -30,17 +30,17 @@ gulp.task('jsmpeg', function() {
 
 gulp.task('scripts', function() {
   browserify({
-    entries: ['./src/index.js'],
+    entries: ['./src/index.js']
   })
     .bundle()
-    .pipe(source('jsmpeg-inline.js'))
+    .pipe(source('mobile-inline-player.js'))
     .pipe(header(BANNER, pkg))
     .pipe(gulp.dest('./'))
   ;
 });
 
 gulp.task('compress', function() {
-  return gulp.src(['jsmpeg.js' ,'jsmpeg-inline.js'])
+  return gulp.src(['jsmpeg.js' ,'mobile-inline-player.js'])
     .pipe(uglify({
       preserveComments: 'some'
     }))
