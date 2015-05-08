@@ -1,15 +1,16 @@
 {
   "name": "jsmpeg",
   "version": "1.0.0",
-  "description": "jsmpeg",
+  "description": "An MPEG1 Video Decoder in JavaScript",
   "main": "src/jsmpeg.js",
   "dependencies": {
     "eventemitter2": "^0.4.14",
     "util": "^0.10.3"
   },
-    "devDependencies": {
+  "devDependencies": {
     "browserify": "^9.0.8",
     "gulp": "^3.8.11",
+    "gulp-header": "^1.2.2",
     "vinyl-source-stream": "^1.1.0"
   },
   "scripts": {
@@ -19,8 +20,8 @@
     "type": "git",
     "url": "https://github.com/aita/jsmpeg.git"
   },
-  "author": "",
-  "license": "GPL",
+  "author": "Ryo Aita <ryoait@gmail.com>",
+  "license": "GPLv3",
   "bugs": {
     "url": "https://github.com/aita/jsmpeg/issues"
   },

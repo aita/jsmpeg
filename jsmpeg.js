@@ -1,4 +1,33 @@
+/**
+ * jsmpeg - An MPEG1 Video Decoder in JavaScript
+ * @version v1.0.0
+ * @link https://github.com/aita/jsmpeg
+ * @license GPLv3
+ *
+ * Based on jsmpeg by Dominic Szablewski - phoboslab.org
+ * https://github.com/phoboslab
+ *
+ * Based on Java MPEG-1 Video Decoder and Player
+ * Copyright (C) 2008 KORANDI Zoltan <korandi_z@users.sourceforge.net>
+ * http://sourceforge.net/projects/javampeg1video/
+ */
+
+
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.jsmpeg = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// jsmpeg by Dominic Szablewski - phoboslab.org, github.com/phoboslab
+//
+// Consider this to be under MIT license. It's largely based an an Open Source
+// Decoder for Java under GPL, while I looked at another Decoder from Nokia
+// (under no particular license?) for certain aspects.
+// I'm not sure if this work is "derivative" enough to have a different license
+// but then again, who still cares about MPEG1?
+//
+// Based on "Java MPEG-1 Video Decoder and Player" by Korandi Zoltan:
+// http://sourceforge.net/projects/javampeg1video/
+//
+// Inspired by "MPEG Decoder in Java ME" by Nokia:
+// http://www.developer.nokia.com/Community/Wiki/MPEG_decoder_in_Java_ME
+
 var EventEmitter2 = require('eventemitter2').EventEmitter2;
 var inherits = require('inherits');
 

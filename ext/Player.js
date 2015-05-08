@@ -218,7 +218,6 @@ Player.prototype.showEndcard = function() {
   this.addEndcard();
 
   // イベントの初期化
-  // this.endcard.addEventListener('click', this.replay.bind(this));
   this.replayButton.addEventListener('click', this.replay.bind(this));
 };
 
