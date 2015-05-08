@@ -1,5 +1,5 @@
-jsmpeg-inline
-==================
+Mobile Inline Player
+=====================
 
 An Inline MPEG1 Video Player in JavaScript
 
