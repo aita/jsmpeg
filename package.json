@@ -24,7 +24,7 @@
     "url": "https://github.com/aita/jsmpeg-inline.git"
   },
   "author": "Ryo Aita <ryoait@gmail.com>",
-  "license": "GPLv3",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/aita/jsmpeg-inline/issues"
   },
