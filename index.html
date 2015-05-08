@@ -1,126 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <title>Mobile Inline Player by aita</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Mobile Inline Player by aita</title>
   </head>
-
   <body>
-    <div id="container">
-      <div class="inner">
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Mobile Inline Player</h1>
+        <p class="header">Inline Video Player for mobile browsers</p>
 
-        <header>
-          <h1>Mobile Inline Player</h1>
-          <h2>Inline Video Player for mobile browsers</h2>
-        </header>
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/aita/mobile-inline-player/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/aita/mobile-inline-player/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/aita/mobile-inline-player">View On GitHub</a></li>
+        </ul>
 
-        <section id="downloads" class="clearfix">
-          <a href="https://github.com/aita/mobile-inline-player/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
-          <a href="https://github.com/aita/mobile-inline-player/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
-          <a href="https://github.com/aita/mobile-inline-player" id="view-on-github" class="button"><span>View on GitHub</span></a>
-        </section>
-
-        <hr>
-
-        <section id="main_content">
-          <h1>
-<a id="demo" class="anchor" href="#demo" aria-hidden="true"><span class="octicon octicon-link"></span></a>Demo</h1>
-
-<div></div>
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/aita">aita</a></p>
 
 
+      </header>
+      <section>
+        <h1>
+<a id="demo" class="anchor" href="#demo" aria-hidden="true"><span class="octicon octicon-link"></span></a>demo</h1>
+
+<div>
+    <div></div>
+    
+</div>
 
 <h1>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h1>
 
 <div class="highlight highlight-html"><pre>&lt;<span class="pl-ent">div</span> <span class="pl-e">data-src</span>=<span class="pl-s"><span class="pl-pds">"</span>video.json<span class="pl-pds">"</span></span> <span class="pl-e">data-mp4</span>=<span class="pl-s"><span class="pl-pds">"</span>fullscreen.mp4<span class="pl-pds">"</span></span> <span class="pl-e">data-endcard</span>=<span class="pl-s"><span class="pl-pds">"</span>endcard.jpg<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">div</span>&gt;
 &lt;<span class="pl-ent">script</span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>jsmpeg-inline.js<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">script</span>&gt;</pre></div>
-
-<h1>
-<a id="options" class="anchor" href="#options" aria-hidden="true"><span class="octicon octicon-link"></span></a>Options</h1>
-
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>data-src</td>
-<td>a playlist URL</td>
-</tr>
-<tr>
-<td>data-mp4</td>
-<td>a mp4 video URL for full screen</td>
-</tr>
-<tr>
-<td>data-endcard</td>
-<td>an endcard image URL</td>
-</tr>
-<tr>
-<td>data-width</td>
-<td>video width</td>
-</tr>
-<tr>
-<td>data-height</td>
-<td>video height</td>
-</tr>
-<tr>
-<td>data-preload-timeout</td>
-<td>a time limit for preloading (in micro seconds)</td>
-</tr>
-</tbody>
-</table>
-
-<h1>
-<a id="file-format" class="anchor" href="#file-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>File format</h1>
-
-<h3>
-<a id="json" class="anchor" href="#json" aria-hidden="true"><span class="octicon octicon-link"></span></a>JSON</h3>
-
-<div class="highlight highlight-json"><pre>{
-  <span class="pl-s"><span class="pl-pds">"</span>url<span class="pl-pds">"</span></span>: [
-    <span class="pl-s"><span class="pl-pds">"</span>aaa.mpg<span class="pl-pds">"</span></span>,
-    <span class="pl-s"><span class="pl-pds">"</span>bbb.mpg<span class="pl-pds">"</span></span>
-  ]
-}</pre></div>
-
-<h1>
-<a id="limitations" class="anchor" href="#limitations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Limitations</h1>
-
-<ul>
-<li>Playback can only start when the file is fully loaded (when not streaming through WebSockets). I'm waiting for chunked XHR with ArrayBuffers to arrive in browsers.</li>
-<li>MPEG files with B-Frames look weird - frames are not reordered. This should be relatively easy
-to fix, but most encoders seem to not use B-Frames at all by default.</li>
-<li>The width of the MPEG video has to be a multiple of 2.</li>
-<li>Only raw MPEG video streams are supported. The decoder hates Stream Packet Headers in between
-macroblocks.</li>
-</ul>
-
-<p>You can use <a href="http://www.ffmpeg.org/">FFmpeg</a> to encode videos in a suited format. This will crop
-the size to a multiple of 2, omit B-Frames and force a raw video stream:</p>
-
-<pre><code>ffmpeg -i in.mp4 -f mpeg1video -vf "crop=iw-mod(iw\,2):ih-mod(ih\,2)" -b 0 out.mpg
-</code></pre>
-        </section>
-
-        <footer>
-          Mobile Inline Player is maintained by <a href="https://github.com/aita">aita</a><br>
-          This page was generated by <a href="https://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
-        </footer>
-
-        
-      </div>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
     </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
   </body>
 </html>
