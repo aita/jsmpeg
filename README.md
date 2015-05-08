@@ -36,9 +36,15 @@ Mobile Inline Player is a MPEG1 player for mobile browsers. It supports pseudo v
 }
 ```
 
+# License Issue
+
+Although Mobile Inline Player is under MIT license,
+jsmpeg is largely based on "Java MPEG-1 Video Decoder and Player" which is under GPL.
+I'm not sure jsmpeg and this library are devrived works of "Java MPEG-1 Video Decoder and Player".
+But you should be careful if you want to use this library on commercial sites.
+
 # Limitations
 
-- Playback can only start when the file is fully loaded (when not streaming through WebSockets). I'm waiting for chunked XHR with ArrayBuffers to arrive in browsers.
 - MPEG files with B-Frames look weird - frames are not reordered. This should be relatively easy
 to fix, but most encoders seem to not use B-Frames at all by default.
 - The width of the MPEG video has to be a multiple of 2.
@@ -49,5 +55,5 @@ You can use [FFmpeg](http://www.ffmpeg.org/) to encode videos in a suited format
 the size to a multiple of 2, omit B-Frames and force a raw video stream:
 
 ```
-ffmpeg -i in.mp4 -f mpeg1video -vf "crop=iw-mod(iw\,2):ih-mod(ih\,2)" -b 0 out.mpg
+ffmpeg -i in.mp4 -f mpeg1video -vf "crop=iw-mod(iw\,2):ih-mod(ih\,2)" -bf 0 out.mpg
 ```
