@@ -61,8 +61,7 @@ var jsmpeg = module.exports = function(url, options) {
   this.ctx = this.canvas.getContext('2d');
 
   this.videoLoader = new VideoLoader();
-  this.autoplay = !!options.autoplay;
-  this.autoplayOnScroll = !!options.autoplayOnScroll;
+  this.autoplay = options.autoplay || 'scroll';
   this.preload = options.preload || 'auto';
   this.repeat = !!options.repeat;
 
