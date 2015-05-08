@@ -111,7 +111,7 @@ Player.prototype.initEvents = function() {
     }).bind(this));
     // 再生停止時
     this.video.addEventListener('pause', (function() {
-      this.player.play();
+      this.onExitFullscreen();
     }).bind(this));
     // 再生終了時
     this.video.addEventListener('ended', (function() {
@@ -178,6 +178,13 @@ Player.prototype.fullscreen = function() {
   return false;
 };
 
+Player.prototype.onExitFullscreen = function() {
+  this.player.el.style.display = "";
+  this.video.style.opacity = "0.0";
+  this.video.pause();
+  this.player.play();
+}
+
 Player.prototype.onFullScreenChange = function() {
   var fullscreenElementAPI = [
     'webkitFullscreenElement',
@@ -199,10 +206,7 @@ Player.prototype.onFullScreenChange = function() {
     this.player.pause();
   } else {
     // フルスクリーンが無効になる場合
-    this.player.el.style.display = "";
-    this.video.style.opacity = 0;
-    this.video.pause();
-    this.player.play();
+    this.onExitFullscreen();
   }
 };
 
