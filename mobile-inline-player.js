@@ -3125,6 +3125,9 @@ Player.prototype.fullscreen = function() {
   if (this.options.mp4) {
     // jsmpegでの再生を停止
     this.player.pause();
+    // videoタグの表示
+    this.player.el.style.display = "none";
+    this.video.style.opacity = "1.0";
     // videoタグの再生開始
     this.requestFullScreen();
     this.video.play();
@@ -3154,6 +3157,7 @@ Player.prototype.onFullScreenChange = function() {
     this.player.pause();
   } else {
     // フルスクリーンが無効になる場合
+    this.player.el.style.display = "";
     this.video.style.opacity = 0;
     this.video.pause();
     this.player.play();

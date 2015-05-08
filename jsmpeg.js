@@ -2,13 +2,12 @@
  * jsmpeg - A MPEG1 Video Decoder in JavaScript
  * @version v1.0.0
  * @link https://github.com/aita/jsmpeg-inline
- * @license GPLv3
+ * @license MIT
  *
  * Based on jsmpeg by Dominic Szablewski - phoboslab.org
  * https://github.com/phoboslab
  *
  * Based on Java MPEG-1 Video Decoder and Player
- * Copyright (C) 2008 KORANDI Zoltan <korandi_z@users.sourceforge.net>
  * http://sourceforge.net/projects/javampeg1video/
  */
 
