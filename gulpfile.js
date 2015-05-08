@@ -2,6 +2,8 @@ var gulp = require('gulp');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var header = require('gulp-header');
+var uglify = require('gulp-uglify');
+var rename = require("gulp-rename");
 var fs = require('fs');
 var _ = require('lodash');
 
@@ -35,6 +37,17 @@ gulp.task('scripts', function() {
     .pipe(header(BANNER, pkg))
     .pipe(gulp.dest('./'))
   ;
+});
+
+gulp.task('compress', function() {
+  return gulp.src(['jsmpeg.js' ,'jsmpeg-inline.js'])
+    .pipe(uglify({
+      preserveComments: 'some'
+    }))
+    .pipe(rename({
+      suffix: '.min'
+    }))
+    .pipe(gulp.dest('./'));
 });
 
 gulp.task('watch', function () {
