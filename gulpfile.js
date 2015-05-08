@@ -3,9 +3,9 @@ var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var header = require('gulp-header');
 var fs = require('fs');
-// var concat = require('gulp-concat');
+var _ = require('lodash');
 
-var BANNER = fs.readFileSync('./banner.js');
+var BANNER = fs.readFileSync('./banner.js') + '\n\n';
 var pkg = require('./package.json');
 
 gulp.task('jsmpeg', function() {
@@ -15,7 +15,13 @@ gulp.task('jsmpeg', function() {
   })
     .bundle()
     .pipe(source('jsmpeg.js'))
-    .pipe(header(BANNER + '\n\n', { pkg: pkg }))
+    .pipe(header(
+      BANNER,
+      _.defaults({
+        name: 'jsmpeg',
+        description: 'A MPEG1 Video Decoder in JavaScript'
+      }, pkg)
+    ))
     .pipe(gulp.dest('./'))
   ;
 });
@@ -26,7 +32,7 @@ gulp.task('scripts', function() {
   })
     .bundle()
     .pipe(source('jsmpeg-inline.js'))
-    .pipe(header(BANNER + '\n\n', { pkg: pkg }))
+    .pipe(header(BANNER, pkg))
     .pipe(gulp.dest('./'))
   ;
 });

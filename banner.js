@@ -1,8 +1,8 @@
 /**
- * <%= pkg.name %> - <%= pkg.description %>
- * @version v<%= pkg.version %>
- * @link <%= pkg.homepage %>
- * @license <%= pkg.license %>
+ * <%= name %> - <%= description %>
+ * @version v<%= version %>
+ * @link <%= homepage %>
+ * @license <%= license %>
  *
  * Based on jsmpeg by Dominic Szablewski - phoboslab.org
  * https://github.com/phoboslab

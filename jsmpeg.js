@@ -1,5 +1,5 @@
 /**
- * jsmpeg-inline - An Inline MPEG1 Video Player in JavaScript
+ * jsmpeg - A MPEG1 Video Decoder in JavaScript
  * @version v1.0.0
  * @link https://github.com/aita/jsmpeg
  * @license GPLv3

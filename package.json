@@ -11,6 +11,7 @@
     "browserify": "^9.0.8",
     "gulp": "^3.8.11",
     "gulp-header": "^1.2.2",
+    "lodash": "^3.8.0",
     "vinyl-source-stream": "^1.1.0"
   },
   "scripts": {
