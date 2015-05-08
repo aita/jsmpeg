@@ -8,7 +8,7 @@ Mobile Inline Player is a MPEG1 player for mobile browsers. It supports pseudo v
 
 ```html
 <div data-src="video.json" data-mp4="fullscreen.mp4" data-endcard="endcard.jpg"></div>
-<script src="jsmpeg-inline.js"></script>
+<script src="mobile-inline-player.js"></script>
 ```
 
 # Options
