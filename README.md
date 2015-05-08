@@ -41,7 +41,7 @@ Mobile Inline Player is a MPEG1 player for mobile browsers. It supports pseudo v
 Although Mobile Inline Player is under MIT license,
 jsmpeg is largely based on "Java MPEG-1 Video Decoder and Player" which is under GPL.
 I'm not sure jsmpeg and this library are devrived works of "Java MPEG-1 Video Decoder and Player".
-But you should be careful if you want to use this library on commercial sites.
+But you should be careful when you use this library on commercial sites.
 
 # Limitations
 
