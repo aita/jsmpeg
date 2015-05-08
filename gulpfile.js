@@ -40,7 +40,7 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('compress', function() {
-  return gulp.src(['jsmpeg.js' ,'mobile-inline-player.js'])
+  return gulp.src(['./mobile-inline-player.js', './jsmpeg.js'])
     .pipe(uglify({
       preserveComments: 'some'
     }))
