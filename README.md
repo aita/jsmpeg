@@ -1,6 +1,8 @@
 Mobile Inline Player
 =====================
 
+http://aita.github.io/mobile-inline-player/
+
 Mobile Inline Player is a MPEG1 player for mobile browsers. It supports pseudo video-streaming with multiple MPEG1 files and auto inline-playing on iPhone and Android.
 
 
